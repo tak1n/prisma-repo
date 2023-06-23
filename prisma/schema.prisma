@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
+}
+
+model Author {
+  id     String     @id @default(uuid())
+  name   String
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum ChannelType {
+  Facebook
+  Instagram
+  WhatsApp
+}
+
+model Room {
+  id        String  @id @default(uuid())
+  channel   ChannelType
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum MessageKind {
+  Input
+  Output
+}
+
+model Message {
+  id            String      @id @default(uuid())
+  kind          MessageKind
+  content       Json
+
+  room      Room    @relation(fields: [roomId], references: [id])
+  roomId    String
+  author    Author  @relation(fields: [authorId], references: [id])
+  authorId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
